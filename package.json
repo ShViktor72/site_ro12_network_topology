@@ -1,0 +1,1 @@
+{"name":"sysadmin-lab-networks","private":true,"version":"1.0.0","type":"module","scripts":{"dev":"node scripts/serve.mjs","build":"node scripts/build.mjs","lint":"node scripts/check.mjs","test":"node --experimental-strip-types --test tests/*.test.ts"},"engines":{"node":">=22.13"}}

@@ -1,0 +1,2 @@
+import {readFile} from 'node:fs/promises';import {stripTypeScriptTypes} from 'node:module';
+for(const file of ['src/config.ts','src/storage.ts','src/networkArchitecture.ts','src/architecturePages.ts','src/app.ts']){const source=await readFile(file,'utf8');stripTypeScriptTypes(source,{mode:'strip'});console.log(`OK ${file}`)}
