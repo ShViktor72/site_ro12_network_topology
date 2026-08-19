@@ -1,0 +1,6 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {chooseTransport,deliveredSegments,nextAck,portRange,socketId,tcpHandshakeStep} from '../src/transportNetwork.ts';import {sectionNavigation,sections} from '../src/config.ts';
+test('седьмой раздел доступен и содержит 13 шагов',()=>{assert.equal(sections.find(x=>x.id==='transport')?.status,'available');assert.equal(sectionNavigation.transport.length,13)});
+test('порты классифицируются',()=>{assert.equal(portRange(80),'well-known');assert.equal(portRange(8080),'registered');assert.equal(portRange(55000),'dynamic');assert.throws(()=>portRange(70000))});
+test('сокет содержит протокол и обе конечные точки',()=>{assert.equal(socketId('TCP','10.0.0.2',53000,'10.0.0.10',443),'TCP 10.0.0.2:53000 → 10.0.0.10:443')});
+test('TCP handshake проходит три шага',()=>{let state=tcpHandshakeStep('CLOSED','SYN');state=tcpHandshakeStep(state,'SYN-ACK');state=tcpHandshakeStep(state,'ACK');assert.equal(state,'ESTABLISHED')});
+test('ACK учитывает непрерывно доставленные байты',()=>{assert.equal(nextAck(1000,500),1500);assert.equal(deliveredSegments([{seq:1500,length:500},{seq:1000,length:500}]),2000);assert.equal(chooseTransport(true,true),'TCP');assert.equal(chooseTransport(false,true),'UDP')});

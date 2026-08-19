@@ -1,0 +1,7 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {addStaticRoute,selectRoute,traceRoute,type Route} from '../src/routingNetwork.ts';import {sectionNavigation,sections} from '../src/config.ts';
+test('шестой раздел доступен и содержит 13 шагов',()=>{assert.equal(sections.find(x=>x.id==='routing')?.status,'available');assert.equal(sectionNavigation.routing.length,13)});
+const routes:Route[]=[{network:'0.0.0.0',prefix:0,nextHop:'192.168.1.1',interface:'eth0',metric:100,source:'default'},{network:'10.0.0.0',prefix:8,nextHop:'192.168.1.2',interface:'eth0',metric:10,source:'static'},{network:'10.20.0.0',prefix:16,nextHop:'192.168.1.3',interface:'eth0',metric:20,source:'dynamic'}];
+test('выбирается самый длинный совпавший префикс',()=>{assert.equal(selectRoute(routes,'10.20.5.1')?.prefix,16);assert.equal(selectRoute(routes,'10.30.1.1')?.prefix,8);assert.equal(selectRoute(routes,'8.8.8.8')?.prefix,0)});
+test('при равном префиксе выбирается меньшая метрика',()=>{const x=[...routes,{...routes[2],nextHop:'192.168.1.4',metric:5}];assert.equal(selectRoute(x,'10.20.1.1')?.nextHop,'192.168.1.4')});
+test('добавляется статический маршрут',()=>{assert.equal(addStaticRoute([], '172.16.0.0',16,'10.0.0.1')[0].source,'static')});
+test('путь строится по существующим связям',()=>{assert.deepEqual(traceRoute({A:['B'],B:['A','C'],C:['B']},'A','C'),['A','B','C']);assert.deepEqual(traceRoute({A:[]},'A','C'),[])});

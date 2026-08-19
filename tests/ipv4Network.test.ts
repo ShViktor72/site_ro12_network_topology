@@ -1,0 +1,6 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {ageArp,decrementTtl,ipv4ToInt,nextHop,sameSubnet,updateArp} from '../src/ipv4Network.ts';import {sectionNavigation,sections} from '../src/config.ts';
+test('четвёртый раздел доступен и содержит 13 шагов',()=>{assert.equal(sections.find(x=>x.id==='ipv4-arp-icmp')?.status,'available');assert.equal(sectionNavigation['ipv4-arp-icmp'].length,13)});
+test('IPv4 проверяется и сравнивается по префиксу',()=>{assert.equal(ipv4ToInt('192.168.1.1'),3232235777);assert.throws(()=>ipv4ToInt('300.1.1.1'));assert.equal(sameSubnet('192.168.1.10','192.168.1.200',24),true);assert.equal(sameSubnet('192.168.1.10','192.168.2.10',24),false)});
+test('следующий узел — адрес назначения локально и шлюз удалённо',()=>{assert.equal(nextHop('192.168.1.10','192.168.1.20',24,'192.168.1.1'),'192.168.1.20');assert.equal(nextHop('192.168.1.10','8.8.8.8',24,'192.168.1.1'),'192.168.1.1')});
+test('ARP-кэш обновляется и стареет',()=>{const cache=updateArp([],'192.168.1.1','aa:bb:cc:dd:ee:ff');assert.equal(cache[0].mac,'AA:BB:CC:DD:EE:FF');assert.deepEqual(ageArp(cache,120),[])});
+test('TTL уменьшается на маршрутизаторе',()=>{assert.deepEqual(decrementTtl(2),{ttl:1,expired:false});assert.deepEqual(decrementTtl(1),{ttl:0,expired:true})});

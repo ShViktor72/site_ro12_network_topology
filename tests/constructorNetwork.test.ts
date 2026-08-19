@@ -1,0 +1,6 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {connectivityMatrix,diagnosticOrder,requiredSwitches,validateDesign} from '../src/constructorNetwork.ts';import {sectionNavigation,sections} from '../src/config.ts';
+test('все девять разделов доступны, финальный содержит 14 шагов',()=>{assert.ok(sections.every(x=>x.status==='available'));assert.equal(sectionNavigation.constructor.length,14)});
+test('проверяется ёмкость и маршрутизация проекта',()=>{const x=validateDesign({users:30,switchPorts:24,router:false,dhcp:true,dns:true,vlans:2,subnets:1,internet:true,nat:false});assert.equal(x.ok,false);assert.ok(x.errors.length>=3);assert.ok(x.warnings.length>=1)});
+test('валидный проект проходит проверку',()=>{assert.equal(validateDesign({users:20,switchPorts:24,router:true,dhcp:true,dns:true,vlans:2,subnets:2,internet:true,nat:true}).ok,true);assert.equal(requiredSwitches(50,24),3)});
+test('диагностика начинается с ближайших проверок',()=>{assert.deepEqual(diagnosticOrder('dns'),['IP ping','DNS server','DNS query']);assert.deepEqual(diagnosticOrder('cable'),['Link','Кабель','Порт'])});
+test('матрица связности учитывает разрешённые пары',()=>{const x=connectivityMatrix(['Users','Servers'],[['Users','Servers']]);assert.equal(x.every(v=>v.allowed),true)});

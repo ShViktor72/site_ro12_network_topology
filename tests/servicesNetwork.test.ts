@@ -1,0 +1,5 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {addPat,ageDns,dhcpStep,findDns,reversePat,type DhcpState,type DnsRecord} from '../src/servicesNetwork.ts';import {sectionNavigation,sections} from '../src/config.ts';
+test('восьмой раздел доступен и содержит 13 шагов',()=>{assert.equal(sections.find(x=>x.id==='services')?.status,'available');assert.equal(sectionNavigation.services.length,13)});
+test('DHCP проходит DORA',()=>{let s:DhcpState='INIT';s=dhcpStep(s,'DISCOVER');s=dhcpStep(s,'OFFER');s=dhcpStep(s,'REQUEST');s=dhcpStep(s,'ACK');assert.equal(s,'BOUND')});
+test('DNS находит запись и учитывает TTL',()=>{const r:DnsRecord[]=[{name:'lab.local',type:'A',value:'10.0.0.10',ttl:60}];assert.equal(findDns(r,'lab.local','A')?.value,'10.0.0.10');assert.deepEqual(ageDns(r,60),[])});
+test('PAT различает соединения публичными портами',()=>{let t=addPat([],'10.0.0.2',53000,'203.0.113.5','TCP');t=addPat(t,'10.0.0.3',53000,'203.0.113.5','TCP');assert.notEqual(t[0].publicPort,t[1].publicPort);assert.equal(reversePat(t,'203.0.113.5',t[1].publicPort,'TCP')?.insideIp,'10.0.0.3')});
